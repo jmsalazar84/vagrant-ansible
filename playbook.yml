@@ -1,0 +1,24 @@
+---
+- hosts: all
+  become: true
+  user: root
+  vars_files:
+    - vault.yml
+  vars:
+    admin_group: wheel
+    admin_username: demo
+    admin_password: "{{ vault_admin_password }}"
+  tasks:
+    - name: Make sure we have a "{{ admin_group }}" group
+      group:
+        name: "{{ admin_group }}"
+        state: present
+    - name: Creating user "{{ admin_username }}" with admin access
+      user:
+        name: "{{ admin_username }}"
+        password: "{{ admin_password | password_hash('sha512') }}"
+        create_home: true
+        append: true
+        state: present
+        groups:
+          - "{{ admin_group }}"
